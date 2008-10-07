@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Repository Browser</title>
+		
+		<!-- Combo-handled YUI CSS files: --> 
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/assets/skins/sam/skin.css"> 
+
+		<!-- Combo-handled YUI JS files: --> 
+		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/connection/connection-min.js&2.6.0/build/datasource/datasource-min.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/datatable/datatable-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/treeview/treeview-min.js"></script>
+	</head>
+	<body class="yui-skin-sam">
+	
+		<div id="tree"></div>
+		<div id="detail"></div>
+		<div id="blank"></div>
+		
+		<script>
+
+			(function() {
+
+				var Dom = YAHOO.util.Dom, Event = YAHOO.util.Event;
+
+				Event.onDOMReady(function() {
+
+					var layout = new YAHOO.widget.Layout({
+						units: [
+							{position: 'left', body: 'tree', width: 512, gutter: '5px', resize: true, scroll: true},
+							{position: 'center', body: 'detail', gutter: '5px', resize: true, scroll: true},
+							{position: 'right', body: 'blank', width: 0, gutter: '5px'}
+						]
+					});
+
+					layout.render();
+
+				});
+
+			})();
+			
+		</script>
+		
+		<script type="text/javascript">
+
+			var myDataSource;
+			var myDataTable;
+
+			YAHOO.example.treeExample = function() {
+
+				var tree;
+
+				function loadNodeData(node, fnLoadComplete)  {
+
+					var path = "/";
+
+					if (node.depth > 0) {
+		
+						for (var i = 1, j = node.depth; i < j; i++) {
+	
+							path = path + node.getAncestor(i).label + "/";
+							
+						}
+	
+						path = path + node.label;
+
+					}
+
+					var sUrl = "services/nodes" + path + ".json?nodeDepth=2";
+
+					var callback = {
+
+						success: function(oResponse) {
+
+							YAHOO.log("XHR transaction was successful.", "info", "example");
+							//YAHOO.log(oResponse.responseText);
+							
+							var oResults = eval("(" + oResponse.responseText + ")");
+
+							if ((oResults.content.node)) {
+
+								if (YAHOO.lang.isArray(oResults.content.node)) {
+
+									for (var i = 0, j = oResults.content.node.length; i < j; i++) {
+										var tempNode = new YAHOO.widget.TextNode(oResults.content.node[i].@name, node, false);
+									}
+
+								} 
+								else {
+									var tempNode = new YAHOO.widget.TextNode(oResults.content.node.@name, node, false);
+								}
+
+							}
+
+							oResponse.argument.fnLoadComplete();
+
+						},
+
+						failure: function(oResponse) {
+
+							YAHOO.log("Failed to process XHR transaction.", "info", "example");
+
+							oResponse.argument.fnLoadComplete();
+
+						},
+
+						argument: {
+							"node": node,
+							"fnLoadComplete": fnLoadComplete
+						},
+
+						timeout: 7000
+
+					};
+
+					YAHOO.util.Connect.asyncRequest('GET', sUrl, callback);
+
+				}
+	
+				function buildTree() {
+	
+					tree = new YAHOO.widget.TreeView("tree");
+
+					tree.setDynamicLoad(loadNodeData, "mode0");
+					
+					var root = tree.getRoot();
+
+					var tempNode = new YAHOO.widget.TextNode("/", root, false);
+
+					tree.subscribe("labelClick", function(node) {
+						
+						var myCallback = function() {
+							this.set("sortedBy", null);
+							this.onDataReturnReplaceRows.apply(this, arguments);
+						};
+
+						var callback1 = {
+							success : myCallback,
+							failure : myCallback,
+							scope : myDataTable
+						};
+
+						var path = "/";
+
+						if (node.depth > 0) {
+			
+							for (var i = 1, j = node.depth; i < j; i++) {
+		
+								path = path + node.getAncestor(i).label + "/";
+								
+							}
+		
+							path = path + node.label;
+
+						}
+						
+						myDataSource.sendRequest(path + ".json?includeAllProperties=true", callback1);
+
+					});
+	
+					tree.draw();
+	
+				}
+
+				return {
+	
+					init: function() {
+	
+						buildTree();
+	
+					}
+	
+				}
+	
+			} ();
+	
+			YAHOO.util.Event.onDOMReady(YAHOO.example.treeExample.init, YAHOO.example.treeExample,true);
+
+			YAHOO.util.Event.addListener(window, "load", function() {
+
+				YAHOO.example.XHR_JSON = function() {
+
+					var myColumnDefs = [
+						{key:"name", sortable:true, resizeable:true},
+						{key:"type", sortable:true, resizeable:true},
+						{key:"value", sortable:true, resizeable:true}
+					];
+
+					myDataSource = new YAHOO.util.DataSource("services/nodes");
+
+					myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
+					myDataSource.connXhrMode = "queueRequests";
+					myDataSource.responseSchema = {
+						resultsList: "content.node.properties.property",
+						fields: ["name", "type","value"]
+					};
+
+					myDataTable = new YAHOO.widget.DataTable("detail", myColumnDefs, myDataSource, {scrollable:true, initialRequest:".json?includeAllProperties=true"});
+
+					var mySuccessHandler = function() {
+						this.set("sortedBy", null);
+						this.onDataReturnAppendRows.apply(this, arguments);
+					};
+
+					var myFailureHandler = function() {
+						this.showTableMessage(YAHOO.widget.DataTable.MSG_ERROR, YAHOO.widget.DataTable.CLASS_ERROR);
+						this.onDataReturnAppendRows.apply(this, arguments);
+					};
+
+					var callbackObj = {
+						success : mySuccessHandler,
+						failure : myFailureHandler,
+						scope : myDataTable
+					};
+
+					return {
+						oDS: myDataSource,
+						oDT: myDataTable
+					};
+
+				}();
+
+			});
+			
+		</script>
+
+		
+	</body>
+</html>
