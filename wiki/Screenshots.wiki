@@ -13,3 +13,5 @@ A few sample screenshots.
 [http://jc-rest.googlecode.com/files/repository_browser_ajax_yui.png]
 
 == Repository Browser (HTML/FTL) ==
+
+[http://jc-rest.googlecode.com/files/repository_browser_html_ftl.png]
