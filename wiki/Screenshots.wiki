@@ -1,0 +1,13 @@
+#summary Sample screenshots.
+#labels Featured
+
+= Introduction =
+
+A few sample screenshots.
+
+
+= Details =
+
+== Repository Browser (AJAX/YUI) ==
+
+== Repository Browser (HTML/FreeMarker) ==
