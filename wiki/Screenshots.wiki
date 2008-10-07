@@ -10,4 +10,4 @@ A few sample screenshots.
 
 == Repository Browser (AJAX/YUI) ==
 
-== Repository Browser (HTML/FreeMarker) ==
+== Repository Browser (HTML/FTL) ==
