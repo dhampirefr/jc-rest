@@ -65,7 +65,7 @@
 
 					}
 
-					var sUrl = "services/nodes" + path + ".json?nodeDepth=2";
+					var sUrl = "services/path/nodes" + path + ".json?nodeDepth=2";
 
 					var callback = {
 
@@ -185,7 +185,7 @@
 						{key:"value", sortable:true, resizeable:true}
 					];
 
-					myDataSource = new YAHOO.util.DataSource("services/nodes");
+					myDataSource = new YAHOO.util.DataSource("services/path/nodes");
 
 					myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
 					myDataSource.connXhrMode = "queueRequests";
