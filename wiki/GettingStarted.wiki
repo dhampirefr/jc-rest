@@ -1,5 +1,5 @@
 #summary A brief guide to getting started.
-#labels A
+#labels Featured
 
 = Introduction =
 
