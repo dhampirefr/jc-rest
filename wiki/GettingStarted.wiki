@@ -1,5 +1,5 @@
 #summary A brief guide to getting started.
-#labels Featured
+#labels A
 
 = Introduction =
 
@@ -7,6 +7,10 @@ There are a few steps take to get JC-Rest properly deployed.
 
 
 = Details =
+
+== JCR API JAR ==
+
+I have commented out the JCR API dependency in the POM because that JAR is most likely already in your server shared libraries folder. With CRX, if the JAR is in the WAR and in your server shared libraries folder you will see a Spring error at start up because it was unable to convert the CRX repository implementation from the JNDI object to a JCR implementation. You can either add that JAR to your server shared libraries folder, or uncomment the dependency from the POM.
 
 == Configure Repository Access ==
 
