@@ -1,0 +1,31 @@
+#summary A listing of available services.
+#labels Featured
+
+= Introduction =
+
+Here is a list of currently available services.
+
+
+= Details =
+
+== Nodes ==
+
+=== XML/JSON ==
+
+/jc-rest/services/path/nodes/{nodePath}
+
+/jc-rest/services/search/nodes/{nodePath}
+
+=== HTML/XML/JSON via FTL ===
+
+/jc-rest/services/template/ftl/{template}/nodes/{nodePath}
+
+=== ATOM ===
+
+/jc-rest/services/feed/{nodePath}
+
+== Events ==
+
+=== XML/JSON ===
+
+/jc-rest/services/events{nodePath}
