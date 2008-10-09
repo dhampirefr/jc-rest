@@ -1,4 +1,5 @@
 #summary A listing of available services.
+#labels Featured
 
 = Introduction =
 
