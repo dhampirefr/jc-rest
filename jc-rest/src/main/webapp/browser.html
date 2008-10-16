@@ -8,13 +8,52 @@
 		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/assets/skins/sam/skin.css"> 
 
 		<!-- Combo-handled YUI JS files: --> 
-		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/connection/connection-min.js&2.6.0/build/datasource/datasource-min.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/datatable/datatable-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/treeview/treeview-min.js"></script>
+		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/connection/connection-min.js&2.6.0/build/datasource/datasource-min.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/datatable/datatable-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/treeview/treeview-min.js&2.6.0/build/tabview/tabview-min.js"></script>
 	</head>
 	<body class="yui-skin-sam">
 	
 		<div id="tree"></div>
 		<div id="detail"></div>
-		<div id="blank"></div>
+		<div id="detail_bottom"></div>
+		<div id="bottom" class="yui-navset">
+			<ul class="yui-nav">
+				<li class="selected"><a href="#tab1"><em>Repository Attributes</em></a></li>
+				<li><a href="#tab2"><em>Repository Events</em></a></li>
+			</ul>
+			<div class="yui-content">
+				<div id="tab1"></div>
+				<div id="tab2"></div>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+
+			var myColumnDefs4 = [
+				{key:"path", sortable:true, resizeable:true},
+				{key:"type", sortable:true, resizeable:true},
+				{key:"user", sortable:true, resizeable:true}
+			];
+	
+			var myDataSource4 = new YAHOO.util.DataSource("services/events.json");
+	
+			myDataSource4.responseType = YAHOO.util.DataSource.TYPE_JSON;
+			myDataSource4.connXhrMode = "queueRequests";
+			myDataSource4.responseSchema = {
+				resultsList: "content.event",
+				fields: ["path", "type", "user"]
+			};
+
+			var myTabs = new YAHOO.widget.TabView("bottom");
+
+			var tab2 = myTabs.getTab(1);
+
+			function handleClick(e) {
+				var myDataTable4 = new YAHOO.widget.DataTable("tab2", myColumnDefs4, myDataSource4, {scrollable:true});
+			}
+
+			tab2.addListener('click', handleClick)
+				
+		</script>  
 		
 		<script>
 
@@ -28,7 +67,8 @@
 						units: [
 							{position: 'left', body: 'tree', width: 512, gutter: '5px', resize: true, scroll: true},
 							{position: 'center', body: 'detail', gutter: '5px', resize: true, scroll: true},
-							{position: 'right', body: 'blank', width: 0, gutter: '5px'}
+							{position: 'right', body: 'detail_bottom', width: 384, gutter: '5px', resize: true, scroll: true},
+							{position: 'bottom', body: 'bottom', height: 256, gutter: '5px', resize: true, scroll: true},
 						]
 					});
 
@@ -42,8 +82,11 @@
 		
 		<script type="text/javascript">
 
-			var myDataSource;
-			var myDataTable;
+			var myDataSource1;
+			var myDataTable1;
+
+			var myDataSource2;
+			var myDataTable2;
 
 			YAHOO.example.treeExample = function() {
 
@@ -70,9 +113,6 @@
 					var callback = {
 
 						success: function(oResponse) {
-
-							YAHOO.log("XHR transaction was successful.", "info", "example");
-							//YAHOO.log(oResponse.responseText);
 							
 							var oResults = eval("(" + oResponse.responseText + ")");
 
@@ -96,16 +136,16 @@
 						},
 
 						failure: function(oResponse) {
-
-							YAHOO.log("Failed to process XHR transaction.", "info", "example");
-
+							
 							oResponse.argument.fnLoadComplete();
-
+							
 						},
 
 						argument: {
+							
 							"node": node,
 							"fnLoadComplete": fnLoadComplete
+							
 						},
 
 						timeout: 7000
@@ -136,7 +176,13 @@
 						var callback1 = {
 							success : myCallback,
 							failure : myCallback,
-							scope : myDataTable
+							scope : myDataTable1
+						};
+
+						var callback2 = {
+							success : myCallback,
+							failure : myCallback,
+							scope : myDataTable2
 						};
 
 						var path = "/";
@@ -153,7 +199,8 @@
 
 						}
 						
-						myDataSource.sendRequest(path + ".json?includeAllProperties=true", callback1);
+						myDataSource1.sendRequest(path + ".json?includeAllProperties=true", callback1);
+						myDataSource2.sendRequest(path + ".json?includeAllAttributes=true", callback2);
 
 					});
 	
@@ -179,44 +226,55 @@
 
 				YAHOO.example.XHR_JSON = function() {
 
-					var myColumnDefs = [
+					var myColumnDefs1 = [
 						{key:"name", sortable:true, resizeable:true},
 						{key:"type", sortable:true, resizeable:true},
 						{key:"value", sortable:true, resizeable:true}
 					];
 
-					myDataSource = new YAHOO.util.DataSource("services/path/nodes");
+					myDataSource1 = new YAHOO.util.DataSource("services/path/nodes");
 
-					myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
-					myDataSource.connXhrMode = "queueRequests";
-					myDataSource.responseSchema = {
+					myDataSource1.responseType = YAHOO.util.DataSource.TYPE_JSON;
+					myDataSource1.connXhrMode = "queueRequests";
+					myDataSource1.responseSchema = {
 						resultsList: "content.node.properties.property",
 						fields: ["name", "type","value"]
 					};
 
-					myDataTable = new YAHOO.widget.DataTable("detail", myColumnDefs, myDataSource, {scrollable:true, initialRequest:".json?includeAllProperties=true"});
+					myDataTable1 = new YAHOO.widget.DataTable("detail", myColumnDefs1, myDataSource1, {scrollable:true, initialRequest:".json?includeAllProperties=true"});
 
-					var mySuccessHandler = function() {
-						this.set("sortedBy", null);
-						this.onDataReturnAppendRows.apply(this, arguments);
+					var myColumnDefs2 = [
+						{key:"name", sortable:true, resizeable:true},
+						{key:"value", sortable:true, resizeable:true}
+					];
+
+					myDataSource2 = new YAHOO.util.DataSource("services/path/nodes");
+
+					myDataSource2.responseType = YAHOO.util.DataSource.TYPE_JSON;
+					myDataSource2.connXhrMode = "queueRequests";
+					myDataSource2.responseSchema = {
+						resultsList: "content.node.attributes.attribute",
+						fields: ["name", "value"]
 					};
 
-					var myFailureHandler = function() {
-						this.showTableMessage(YAHOO.widget.DataTable.MSG_ERROR, YAHOO.widget.DataTable.CLASS_ERROR);
-						this.onDataReturnAppendRows.apply(this, arguments);
+					myDataTable2 = new YAHOO.widget.DataTable("detail_bottom", myColumnDefs2, myDataSource2, {scrollable:true, initialRequest:".json?includeAllAttributes=true"});
+
+					var myColumnDefs3 = [
+						{key:"name", sortable:true, resizeable:true},
+						{key:"value", sortable:true, resizeable:true}
+					];
+
+					var myDataSource3 = new YAHOO.util.DataSource("services/repository/attributes.json");
+
+					myDataSource3.responseType = YAHOO.util.DataSource.TYPE_JSON;
+					myDataSource3.connXhrMode = "queueRequests";
+					myDataSource3.responseSchema = {
+						resultsList: "content.repository.attribute",
+						fields: ["name", "value"]
 					};
 
-					var callbackObj = {
-						success : mySuccessHandler,
-						failure : myFailureHandler,
-						scope : myDataTable
-					};
-
-					return {
-						oDS: myDataSource,
-						oDT: myDataTable
-					};
-
+					var myDataTable3 = new YAHOO.widget.DataTable("tab1", myColumnDefs3, myDataSource3, {scrollable:true});
+					
 				}();
 
 			});

@@ -41,6 +41,8 @@ import org.apache.abdera.model.Content;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
+
+import org.jcrest.bean.ContentAttribute;
 import org.jcrest.bean.ContentEvent;
 import org.jcrest.bean.ContentNode;
 import org.jcrest.bean.ContentProperty;
@@ -54,9 +56,9 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 @Path(value="/")
-public class ContentService {
+public class ContentReadService {
 	
-	private static final Logger LOGGER = Logger.getLogger(ContentService.class);
+	private static final Logger LOGGER = Logger.getLogger(ContentReadService.class);
 	
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	
@@ -77,11 +79,12 @@ public class ContentService {
     		@DefaultValue("false") @QueryParam("includeAllProperties") boolean includeAllProperties, 
     		@DefaultValue("false") @QueryParam("includePrimaryItem") boolean includePrimaryItem, 
     		@DefaultValue("false") @QueryParam("includePrimaryItemDescendants") boolean includePrimaryItemDescendants,
-    		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren) {
+    		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren,
+    		@DefaultValue("false") @QueryParam("includeAllAttributes") boolean includeAllAttributes) {
 		
 		final ContentWrapper content = new ContentWrapper();
 		
-		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 		
 		content.setContentNodes(contentNodes);
 		
@@ -98,11 +101,12 @@ public class ContentService {
     		@DefaultValue("false") @QueryParam("includeAllProperties") boolean includeAllProperties, 
     		@DefaultValue("false") @QueryParam("includePrimaryItem") boolean includePrimaryItem, 
     		@DefaultValue("false") @QueryParam("includePrimaryItemDescendants") boolean includePrimaryItemDescendants,
-    		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren) {
+    		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren,
+    		@DefaultValue("false") @QueryParam("includeAllAttributes") boolean includeAllAttributes) {
 		
 		final ContentWrapper content = new ContentWrapper();
 		
-		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 		
 		content.setContentNodes(contentNodes);
 		
@@ -121,9 +125,10 @@ public class ContentService {
     		@DefaultValue("false") @QueryParam("includePrimaryItem") boolean includePrimaryItem, 
     		@DefaultValue("false") @QueryParam("includePrimaryItemDescendants") boolean includePrimaryItemDescendants,
     		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren,
+    		@DefaultValue("false") @QueryParam("includeAllAttributes") boolean includeAllAttributes,
     		@DefaultValue("browser") @PathParam("template") String template) {
 		
-		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 		
 		final Map<String, Object> model = new HashMap<String, Object>();
 		
@@ -159,6 +164,7 @@ public class ContentService {
     		@DefaultValue("false") @QueryParam("includePrimaryItem") boolean includePrimaryItem, 
     		@DefaultValue("false") @QueryParam("includePrimaryItemDescendants") boolean includePrimaryItemDescendants,
     		@DefaultValue("false") @QueryParam("includeAllChildren") boolean includeAllChildren,
+    		@DefaultValue("false") @QueryParam("includeAllAttributes") boolean includeAllAttributes,
     		@QueryParam("entryTitle") String entryTitle,
     		@QueryParam("entryUpdated") String entryUpdated,
     		@QueryParam("entryContent") String entryContent,
@@ -175,7 +181,7 @@ public class ContentService {
 		feed.setTitle("/jc-rest/services/".concat(nodePath));
 		feed.setUpdated("2008-09-12");
 		
-		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+		final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(nodePath, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 		
 		for (ContentNode contentNode: contentNodes) {
 		
@@ -272,10 +278,10 @@ public class ContentService {
 		return content;
 		
 	}
-	
+		
 	private Object getContentNodes(final String nodePath, final int nodeDepth, final int depth, final boolean includeAllProperties, 
 			final String propertiesToShow, final String nodeType, final boolean includePrimaryItem, final boolean includePrimaryItemDescendants,
-			final boolean includeAllChildren) {
+			final boolean includeAllChildren, final boolean includeAllAttributes) {
 		
 		return jcrTemplate.execute(new JcrCallback() {
 
@@ -288,7 +294,7 @@ public class ContentService {
 				
 				final Node node = (Node) session.getItem(sb.toString());
 				
-				final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(node, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+				final List<ContentNode> contentNodes = (List<ContentNode>) getContentNodes(node, nodeDepth, 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 				
 				return contentNodes;
 				
@@ -300,7 +306,7 @@ public class ContentService {
 	
 	private Object getContentNodes(final Node node, final int nodeDepth, final int depth, final boolean includeAllProperties, 
 			final String propertiesToShow, final String nodeType, final boolean includePrimaryItem, final boolean includePrimaryItemDescendants,
-			final boolean includeAllChildren) {
+			final boolean includeAllChildren, final boolean includeAllAttributes) {
 		
 		return jcrTemplate.execute(new JcrCallback() {
 
@@ -312,7 +318,7 @@ public class ContentService {
 					
 					if (nodeType == null || node.getPrimaryNodeType().getName().equals(nodeType)) {
 					
-						final ContentNode contentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+						final ContentNode contentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 						
 						nodes.add(contentNode);
 					
@@ -324,7 +330,7 @@ public class ContentService {
 					final NodeIterator iter = node.getNodes();
 					
 					while (iter.hasNext())
-						nodes.addAll((List<ContentNode>) getContentNodes(iter.nextNode(), nodeDepth, depth + 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren));
+						nodes.addAll((List<ContentNode>) getContentNodes(iter.nextNode(), nodeDepth, depth + 1, includeAllProperties, propertiesToShow, nodeType, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes));
 					
 				}
 				
@@ -338,7 +344,7 @@ public class ContentService {
 
 	private Object getContentNodes(final String nodePath, final boolean includeAllProperties, 
 			final String propertiesToShow, final String nodeType, final boolean includePrimaryItem, final boolean includePrimaryItemDescendants,
-			final boolean includeAllChildren) {
+			final boolean includeAllChildren, final boolean includeAllAttributes) {
 		
 		return jcrTemplate.execute(new JcrCallback() {
 
@@ -370,7 +376,7 @@ public class ContentService {
 					
 					final Node node = resultIter.nextNode();
 					
-					final ContentNode contentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren);
+					final ContentNode contentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, includePrimaryItem, includePrimaryItemDescendants, includeAllChildren, includeAllAttributes);
 					
 					boolean valid = true;
 					
@@ -430,7 +436,8 @@ public class ContentService {
 	}
 	
 	private Object getContentNode(final Node node, final boolean includeAllProperties, final String propertiesToShow, 
-			final boolean includePrimaryItem, final boolean includePrimaryItemDescendants, final boolean includeAllChildren) {
+			final boolean includePrimaryItem, final boolean includePrimaryItemDescendants, final boolean includeAllChildren,
+			final boolean includeAllAttributes) {
 		
 		return jcrTemplate.execute(new JcrCallback() {
 
@@ -446,6 +453,25 @@ public class ContentService {
 				}
 				else
 					contentNode.setName("Root");
+				
+				final List<ContentAttribute> contentAttributes = new ArrayList<ContentAttribute>();
+				
+				if (includeAllAttributes) {
+				
+					contentAttributes.add(new ContentAttribute("Checked Out", String.valueOf(node.isCheckedOut())));
+					contentAttributes.add(new ContentAttribute("Locked", String.valueOf(node.isLocked())));
+					contentAttributes.add(new ContentAttribute("Holds Lock", String.valueOf(node.holdsLock())));
+					
+					try {
+						contentAttributes.add(new ContentAttribute("Primary Item", node.getPrimaryItem().getName()));
+					}
+					catch (ItemNotFoundException ex) {
+						LOGGER.warn(ex);
+					}
+				
+				}
+				
+				contentNode.setAttributes(contentAttributes);
 				
 				final List<ContentProperty> contentProperties = new ArrayList<ContentProperty>();
 				
@@ -513,7 +539,7 @@ public class ContentService {
 						
 						final Node node = nodeIter.nextNode();
 						
-						final ContentNode childContentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false);
+						final ContentNode childContentNode = (ContentNode) getContentNode(node, includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false, includeAllAttributes);
 						
 						contentNodes.add(childContentNode);
 						
@@ -530,7 +556,7 @@ public class ContentService {
 							
 							final Node primaryItemNode = (Node) primaryItem;
 							
-							final ContentNode primaryItemContentNode = (ContentNode) getContentNode(primaryItemNode, includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false);
+							final ContentNode primaryItemContentNode = (ContentNode) getContentNode(primaryItemNode, includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false, includeAllAttributes);
 							
 							contentNodes.add(primaryItemContentNode);
 							
@@ -548,7 +574,7 @@ public class ContentService {
 						
 					while (descendants.hasNext()) {
 							
-						final ContentNode descendantContentNode = (ContentNode) getContentNode(descendants.nextNode(), includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false);
+						final ContentNode descendantContentNode = (ContentNode) getContentNode(descendants.nextNode(), includeAllProperties, propertiesToShow, false, includePrimaryItemDescendants, false, includeAllAttributes);
 							
 						contentNodes.add(descendantContentNode);
 							
@@ -565,7 +591,7 @@ public class ContentService {
 		});
 		
 	}
-	
+		
 	public Configuration getFreemarkerConfig() {
 		return freemarkerConfig;
 	}
