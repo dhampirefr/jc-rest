@@ -13,6 +13,7 @@ public class ContentNode {
 	private String parent;
 	
 	private List<ContentProperty> properties;
+	private List<ContentAttribute> attributes;
 	private List<ContentNode> nodes;
 
 	public ContentProperty getProperty(final String property) {
@@ -66,6 +67,17 @@ public class ContentNode {
 
 	public void setProperties(List<ContentProperty> properties) {
 		this.properties = properties;
+	}
+
+	@XmlElementWrapper(name="attributes")
+	@XmlElements(
+	    @XmlElement(name="attribute", type=org.jcrest.bean.ContentAttribute.class))
+	public List<ContentAttribute> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(List<ContentAttribute> attributes) {
+		this.attributes = attributes;
 	}
 
 	@XmlElementWrapper(name="nodes")

@@ -81,7 +81,9 @@
 	
 	<jaxrs:server id="contentServer" address="/">
 		<jaxrs:serviceBeans>
-			<ref bean="contentService" />
+			<ref bean="contentReadService" />
+			<ref bean="contentWriteService" />
+			<ref bean="contentRepositoryService" />
 		</jaxrs:serviceBeans>
 		<jaxrs:providers>
 			<bean class="org.apache.cxf.jaxrs.provider.AtomFeedProvider"/>
@@ -94,10 +96,18 @@
 		</jaxrs:extensionMappings>
 	</jaxrs:server>
 	
-	<bean id="contentService" class="org.jcrest.service.rest.ContentService">
+	<bean id="contentReadService" class="org.jcrest.service.rest.ContentReadService">
 		<property name="jcrTemplate" ref="jcrTemplate"/>
 		<property name="eventCache" ref="eventCache"/>
 		<property name="freemarkerConfig" ref="freemarkerConfig"/>
+	</bean>
+	
+	<bean id="contentWriteService" class="org.jcrest.service.rest.ContentWriteService">
+		<property name="jcrTemplate" ref="jcrTemplate"/>
+	</bean>
+	
+	<bean id="contentRepositoryService" class="org.jcrest.service.rest.ContentRepositoryService">
+		<property name="jcrTemplate" ref="jcrTemplate"/>
 	</bean>
 	
 	<bean id="freemarkerConfig" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
