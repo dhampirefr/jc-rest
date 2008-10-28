@@ -3,6 +3,7 @@ package org.jcrest.service.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.GET;
@@ -40,10 +41,12 @@ public class ContentRepositoryService {
 				
 				final List<ContentAttribute> attributes = new ArrayList<ContentAttribute>();
 				
-				final String[] names = session.getRepository().getDescriptorKeys();
+				final Repository repository = session.getRepository();
+				
+				final String[] names = repository.getDescriptorKeys();
 				
 				for (String name: names)
-					attributes.add(new ContentAttribute(name.replaceAll("_", " "), session.getRepository().getDescriptor(name)));
+					attributes.add(new ContentAttribute(name.replaceAll("_", " "), repository.getDescriptor(name)));
 				
 				return attributes;
 				

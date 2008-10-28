@@ -19,10 +19,14 @@
 			<ul class="yui-nav">
 				<li class="selected"><a href="#tab1"><em>Repository Attributes</em></a></li>
 				<li><a href="#tab2"><em>Repository Events</em></a></li>
+				<li><a href="#tab3"><em>Workspace Namespaces</em></a></li>
+				<li><a href="#tab4"><em>Workspace Node Types</em></a></li>
 			</ul>
 			<div class="yui-content">
 				<div id="tab1"></div>
 				<div id="tab2"></div>
+				<div id="tab3"></div>
+				<div id="tab4"></div>
 			</div>
 		</div>
 		
@@ -43,15 +47,60 @@
 				fields: ["path", "type", "user"]
 			};
 
+			var myColumnDefs5 = [
+   				{key:"prefix", sortable:true, resizeable:true},
+   				{key:"uri", sortable:true, resizeable:true}
+   			];
+   	
+   			var myDataSource5 = new YAHOO.util.DataSource("services/workspace/namespaces.json");
+   	
+   			myDataSource5.responseType = YAHOO.util.DataSource.TYPE_JSON;
+   			myDataSource5.connXhrMode = "queueRequests";
+   			myDataSource5.responseSchema = {
+   				resultsList: "workspace.namespaces.namespace",
+   				fields: ["prefix", "uri"]
+   			};
+
+			var myColumnDefs6 = [
+   				{key:"name", sortable:true, resizeable:true},
+   				{key:"mixin", sortable:true, resizeable:true},
+   				{key:"orderableChildNodes", sortable:true, resizeable:true}
+   			];
+   	
+   			var myDataSource6 = new YAHOO.util.DataSource("services/workspace/nodeTypes.json");
+   	
+   			myDataSource6.responseType = YAHOO.util.DataSource.TYPE_JSON;
+   			myDataSource6.connXhrMode = "queueRequests";
+   			myDataSource6.responseSchema = {
+   				resultsList: "workspace.nodeTypes.nodeType",
+   				fields: ["name", "mixin", "orderableChildNodes"]
+   			};
+
 			var myTabs = new YAHOO.widget.TabView("bottom");
 
 			var tab2 = myTabs.getTab(1);
 
-			function handleClick(e) {
+			function handleClick1(e) {
 				var myDataTable4 = new YAHOO.widget.DataTable("tab2", myColumnDefs4, myDataSource4, {scrollable:true});
 			}
 
-			tab2.addListener('click', handleClick)
+			tab2.addListener('click', handleClick1);
+
+			var tab3 = myTabs.getTab(2);
+
+			function handleClick2(e) {
+				var myDataTable5 = new YAHOO.widget.DataTable("tab3", myColumnDefs5, myDataSource5, {scrollable:true});
+			}
+
+			tab3.addListener('click', handleClick2);
+
+			var tab4 = myTabs.getTab(3);
+
+			function handleClick3(e) {
+				var myDataTable6 = new YAHOO.widget.DataTable("tab4", myColumnDefs6, myDataSource6, {scrollable:true});
+			}
+
+			tab4.addListener('click', handleClick3);
 				
 		</script>  
 		
