@@ -84,6 +84,7 @@
 			<ref bean="contentReadService" />
 			<ref bean="contentWriteService" />
 			<ref bean="contentRepositoryService" />
+			<ref bean="contentWorkspaceService" />
 		</jaxrs:serviceBeans>
 		<jaxrs:providers>
 			<bean class="org.apache.cxf.jaxrs.provider.AtomFeedProvider"/>
@@ -107,6 +108,10 @@
 	</bean>
 	
 	<bean id="contentRepositoryService" class="org.jcrest.service.rest.ContentRepositoryService">
+		<property name="jcrTemplate" ref="jcrTemplate"/>
+	</bean>
+	
+	<bean id="contentWorkspaceService" class="org.jcrest.service.rest.ContentWorkspaceService">
 		<property name="jcrTemplate" ref="jcrTemplate"/>
 	</bean>
 	
