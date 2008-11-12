@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<enunciate xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.8.xsd">
+	<namespaces>
+		<namespace id="jc-rest" uri="http://www.jc-rest.org"/>
+	</namespaces>
+	<api-classes>
+		<exclude pattern="org.jcrest.listener.*"/>
+	</api-classes>
+	<modules>
+		<docs docsDir="docs" title="JC-REST"/>
+	</modules>
+</enunciate>
